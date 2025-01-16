@@ -4,6 +4,7 @@ import time
 import numpy as np
 import six
 import tensorflow as tf
+from tensorflow import keras
 from tfsnippet.scaffold import TrainLoop
 from tfsnippet.shortcuts import VarScopeObject
 from tfsnippet.utils import (reopen_variable_scope,
@@ -110,10 +111,9 @@ class Trainer(VarScopeObject):
             )
 
             # input placeholders
-            self._input_x = tf.compat.v1.placeholder(
-                dtype=tf.float32, shape=[None, model.window_length, model.x_dims], name='input_x')
-            self._learning_rate = tf.compat.v1.placeholder(
-                dtype=tf.float32, shape=(), name='learning_rate')
+            self._input_x = keras.Input(shape=(model.window_length, model.x_dims), dtype=tf.float32, name='input_x')
+                
+            self._learning_rate = keras.Input(shape=(), dtype=tf.float32, name='learning_rate')
 
             # compose the training loss
             with tf.compat.v1.name_scope('loss'):
