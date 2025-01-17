@@ -94,23 +94,26 @@ def rnn(x,
             x = tf.reduce_mean(x, axis=0)
         elif len(x.shape) != 3:
             logging.error("rnn input shape error")
-        #x = tf.unstack(x, window_length, time_axis)
+        x = tf.unstack(x, window_length, time_axis)
 
         if rnn_cell == 'LSTM':
             # Define lstm cells with TensorFlow
             # Forward direction cell
-            fw_cell = tf.keras.layers.LSTMCell(rnn_num_hidden)
+            fw_cell = tf.compat.v1.nn.rnn_cell.BasicRNNCell(rnn_num_hidden)
             
         elif rnn_cell == "GRU":
-            fw_cell = tf.keras.layers.GRUCell(rnn_num_hidden)
+            fw_cell = tf.compat.v1.nn.rnn_cell.GRUCell(rnn_num_hidden)
         elif rnn_cell == 'Basic':
-            fw_cell = tf.keras.layers.SimpleRNN(rnn_num_hidden)
+            fw_cell = tf.compat.v1.nn.rnn_cell.BasicRNNCell(rnn_num_hidden)
         else:
             raise ValueError("rnn_cell must be LSTM or GRU")
 
         # Get lstm cell output
 
-        outputs = tf.keras.layers.RNN(fw_cell)(x)
+        try:
+            outputs, _ = tf.compat.v1.nn.static_rnn(fw_cell, x, dtype=tf.float32)
+        except Exception:  # Old TensorFlow version only returns outputs not states
+            outputs = tf.compat.v1.nn.static_rnn(fw_cell, x, dtype=tf.float32)
         outputs = tf.stack(outputs, axis=time_axis)
         for i in range(hidden_dense):
             outputs = tf.compat.v1.layers.dense(outputs, dense_dim)
