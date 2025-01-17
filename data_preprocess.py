@@ -75,7 +75,7 @@ if __name__ == '__main__':
             if d in datasets:
                 load_data(d)
     else:
-        print("""
+        print(f"""
         Usage: python data_preprocess.py <datasets>
-        where <datasets> should be one of ['SMD', 'SMAP', 'MSL']
+        where <datasets> should be one of {datasets}
         """)
